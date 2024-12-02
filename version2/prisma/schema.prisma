@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js" //this is client which help us interact with db
+}
+
+datasource db {
+  provider = "postgresql" //provider is the name of database sevrice
+  url      = env("DATABASE_URL")
+}
+
+//main table is this one
+model Auth {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique //as @unique in a schema, the uniqueness is scoped to the table where the field is defined      
+  password String //will be hashed
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  balance      Int // no float balcence allowed
+  transactions Transaction[] // one to  many relation with transactions, one user can have many transactions
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  userId    String //foreign key to associate with the user //of type to which it will point to
+  amount    Int
+  type      String // deposits, withdrwal , transfer
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [email]) //fields[] specifies the field in trns model that will store the foreging key //references: [id]:	This specifies which field in the related model (User) the foreign key points to.
+}
